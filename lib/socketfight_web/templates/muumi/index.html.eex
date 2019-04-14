@@ -1,0 +1,5 @@
+<div class="phx-hero">
+  <h2>muumit laaksossa</h2>
+</div>
+<div id="messages"></div>
+<input id="chat-input" type="text"></input>
