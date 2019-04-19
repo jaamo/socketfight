@@ -35,7 +35,7 @@ export default class SocketFight {
     // Init socket.
     this.socket = new Socket('/socket', {params: {token: window.userToken}});
     this.socket.connect();
-    this.channel = this.socket.channel('game:lobby', {});
+    this.channel = this.socket.channel('game:default', {});
     this.channel
       .join()
       .receive('ok', resp => {
@@ -71,7 +71,7 @@ export default class SocketFight {
    * Receive data from backend.
    */
   receiver(payload) {
-    console.log(payload.body);
+    console.log(payload);
   }
 
   /**
@@ -80,9 +80,9 @@ export default class SocketFight {
   onKeyPress(e) {
     console.log(e.keyCode);
     switch (e.keyCode) {
-      // a, left
-      case 67:
-        this.channel.push('new_msg', {body: 'left'});
+      // w, up
+      case 87:
+        this.channel.push('event', {action: 'up'});
         break;
     }
   }

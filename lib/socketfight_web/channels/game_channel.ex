@@ -1,12 +1,49 @@
+# https://medium.com/@miguel.coba/building-a-game-with-phoenix-channels-a3e6b390cfcc
+
 defmodule SocketfightWeb.GameChannel do
   use Phoenix.Channel
+  alias Socketfight.GameState
 
-  def join("game:lobby", _message, socket) do
-    {:ok, socket}
+  def join("game:default", message, socket) do
+
+    # Get all players.
+    players = GameState.players()
+
+    # Notify self.
+    send(self, {:after_join, message})
+
+    # Return players list to the client.
+    {:ok, %{players: players}, socket}
+
   end
 
   def join("game:" <> _private_room_id, _params, _socket) do
     {:error, %{reason: "unauthorized"}}
+  end
+
+  # Add new player to players list.
+  def handle_info({:after_join, _message}, socket) do
+
+    # Hard coded id for now
+    player_id = 1
+
+    # Create ne player
+    player = %{id: player_id, forward: false}
+
+    # Put player to state
+    player = GameState.put_player(player)
+
+    # Notify that new player joined
+    broadcast! socket, "player:joined", %{player: player}
+    {:noreply, socket}
+  end
+
+  def handle_in("event", %{"action" => action}, socket) do
+    #player_id = socket.assigns.player_id
+    player_id = 1
+    player = GameState.enable_player_state(player_id, action)
+    broadcast! socket, "player:update", %{player: player}
+    {:noreply, socket}
   end
 
   def handle_in("new_msg", %{"body" => body}, socket) do

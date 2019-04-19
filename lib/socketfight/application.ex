@@ -9,9 +9,11 @@ defmodule Socketfight.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      SocketfightWeb.Endpoint
+      SocketfightWeb.Endpoint,
       # Starts a worker by calling: Socketfight.Worker.start_link(arg)
       # {Socketfight.Worker, arg},
+      Socketfight.GameState,
+      Socketfight.Tick
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
