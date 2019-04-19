@@ -1,8 +1,8 @@
 defmodule Socketfight.GameState do
   use Agent
 
-  @arena_width 1080
-  @arena_height 720
+  #@arena_width 1080
+  #@arena_height 720
 
   @doc """
   Used by the supervisor to start the Agent that will keep the game state persistent.
@@ -43,16 +43,34 @@ defmodule Socketfight.GameState do
     Agent.get(__MODULE__, &(&1))
   end
 
-  def enable_player_state(player_id, action) do 
+  def update_player_action(player_id, action, state) do 
     player_id 
     |> get_player 
-    |> update_player_meta(:forward, true) 
+    |> update_player_meta(action, state) 
     |> update_player
   end
 
   def update_player_meta(player, key, value) do
     player
-    |> Map.update!(key, fn(a) -> value end)
+    |> put_in([:actions, key], value)
+    #|> Map.update!(key, fn(_) -> value end)
+  end
+
+  @doc """
+  Calculate game tick.
+  """
+  def tick() do
+    Enum.each players, fn{key, player} ->
+      player_tick(player) |> update_player
+    end     
+  end
+
+  def player_tick(player) do
+    if player.actions["forward"] do
+      update_in(player, [:state, :x], fn(x) -> x + 1 end)
+    else
+      player
+    end
   end
 
 end

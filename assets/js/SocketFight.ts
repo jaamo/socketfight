@@ -26,11 +26,16 @@ export default class SocketFight {
       },
     };
 
+    // Key states. Used to prevent repeating key events when
+    // a button is hold down.
+    this.state = {forward: false};
+
     // Init game.
     this.game = new Phaser.Game(config);
 
     // Init inputs.
-    document.addEventListener('keyup', e => this.onKeyPress(e));
+    document.addEventListener('keydown', e => this.onKeyDown(e));
+    document.addEventListener('keyup', e => this.onKeyUp(e));
 
     // Init socket.
     this.socket = new Socket('/socket', {params: {token: window.userToken}});
@@ -75,14 +80,33 @@ export default class SocketFight {
   }
 
   /**
-   * Handle keypress.
+   * Handle key down.
    */
-  onKeyPress(e) {
-    console.log(e.keyCode);
+  onKeyDown(e) {
+    console.log('Down ' + e.keyCode);
     switch (e.keyCode) {
       // w, up
       case 87:
-        this.channel.push('event', {action: 'up'});
+        if (!this.state.forward) {
+          this.state.forward = true;
+          this.channel.push('event', {action: 'forward', state: true});
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle key up
+   */
+  onKeyUp(e) {
+    console.log('Up ' + e.keyCode);
+    switch (e.keyCode) {
+      // w, up
+      case 87:
+        if (this.state.forward) {
+          this.state.forward = false;
+          this.channel.push('event', {action: 'forward', state: false});
+        }
         break;
     }
   }

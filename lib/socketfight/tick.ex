@@ -15,8 +15,9 @@ defmodule Socketfight.Tick do
     # Do the desired work here
     schedule_work() # Reschedule once more
     player = GameState.get_player(1)
+    GameState.tick()
     if player != nil do
-      IO.puts "Player: #{player.forward}"
+      IO.puts "Player: forward #{player.actions["forward"]}, x: #{player.state.x}"
     end
     {:noreply, state}
   end

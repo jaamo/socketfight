@@ -28,7 +28,11 @@ defmodule SocketfightWeb.GameChannel do
     player_id = 1
 
     # Create ne player
-    player = %{id: player_id, forward: false}
+    player = %{
+      id: player_id, 
+      actions: %{"forward" => false},
+      state: %{x: 0}
+    }
 
     # Put player to state
     player = GameState.put_player(player)
@@ -38,17 +42,19 @@ defmodule SocketfightWeb.GameChannel do
     {:noreply, socket}
   end
 
-  def handle_in("event", %{"action" => action}, socket) do
+  def handle_in("event", %{"action" => action, "state" => state}, socket) do
     #player_id = socket.assigns.player_id
     player_id = 1
-    player = GameState.enable_player_state(player_id, action)
+    player = GameState.update_player_action(player_id, action, state)
     broadcast! socket, "player:update", %{player: player}
     {:noreply, socket}
   end
 
+  # old this kept as reference
   def handle_in("new_msg", %{"body" => body}, socket) do
     broadcast!(socket, "new_msg", %{body: body})
     {:noreply, socket}
   end
+
 
 end
