@@ -27,18 +27,23 @@ defmodule SocketfightWeb.GameChannel do
     # Hard coded id for now
     player_id = 1
 
-    # Create ne player
+    # Create new player
     player = %{
       id: player_id, 
-      actions: %{"forward" => false},
-      state: %{x: 0}
+      actions: %{
+        "forward" => false
+      },
+      state: %{
+        x: 540, 
+        y: 360
+      }
     }
 
     # Put player to state
     player = GameState.put_player(player)
 
     # Notify that new player joined
-    broadcast! socket, "player:joined", %{player: player}
+    broadcast! socket, "player:update", %{player: player}
     {:noreply, socket}
   end
 
