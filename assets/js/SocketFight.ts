@@ -12,11 +12,17 @@ export default class SocketFight extends Phaser.Scene {
   constructor(config) {
     super(config);
 
-    this.created = false;
+    // List of tanks.
+    this.players = {};
 
     // Key states. Used to prevent repeating key events when
     // a button is hold down.
     this.state = { forward: false };
+
+    // Map keys to events.
+    this.keyMap = {
+      "87": "forward"
+    };
 
     // Init inputs.
     document.addEventListener("keydown", e => this.onKeyDown(e));
@@ -39,7 +45,6 @@ export default class SocketFight extends Phaser.Scene {
         );
         console.log("Unable to join", resp);
       });
-    this.channel.on("player:update", payload => this.receiver(payload));
   }
 
   /**
@@ -56,35 +61,46 @@ export default class SocketFight extends Phaser.Scene {
    */
   create() {
     this.add.image(540, 360, "map");
-    this.tank = new Tank(this, 0, 0, "tank");
-    this.add.existing(this.tank);
-    this.created = true;
+    this.channel.on("player:update", payload => this.receiver(payload));
   }
 
   update() {}
 
   /**
-   * Receive data from backend.
+   * Receive data from backend. Create new tanks, remove tanks and update tanks.
    */
   receiver(payload) {
-    console.log(payload);
-    if (this.created) {
-      //this.tank.setPosition(payload.player.state.x, 0);
+    //console.log(payload);
+    if (!payload.players) {
+      return;
     }
+
+    Object.values(payload.players).forEach(player => {
+      // Player exists, update
+      if (typeof this.players[player.id] != "undefined") {
+        this.players[player.id].setPosition(player.state.x, player.state.y);
+      }
+      // Player does not exist, create new.
+      else {
+        console.log("New tank: " + player.id);
+        const tank = new Tank(this, player.state.x, player.state.y, "tank");
+        this.players[player.id] = tank;
+        this.add.existing(tank);
+      }
+    });
   }
 
   /**
    * Handle key down.
    */
   onKeyDown(e) {
-    switch (e.keyCode) {
-      // w, up
-      case 87:
-        if (!this.state.forward) {
-          this.state.forward = true;
-          this.channel.push("event", { action: "forward", state: true });
-        }
-        break;
+    //console.log(e.keyCode);
+    if (typeof this.keyMap[e.keyCode] != "undefined") {
+      const action = this.keyMap[e.keyCode];
+      if (!this.state[action]) {
+        this.state[action] = true;
+        this.channel.push("event", { action: action, state: true });
+      }
     }
   }
 
@@ -92,14 +108,12 @@ export default class SocketFight extends Phaser.Scene {
    * Handle key up
    */
   onKeyUp(e) {
-    switch (e.keyCode) {
-      // w, up
-      case 87:
-        if (this.state.forward) {
-          this.state.forward = false;
-          this.channel.push("event", { action: "forward", state: false });
-        }
-        break;
+    if (typeof this.keyMap[e.keyCode] != "undefined") {
+      const action = this.keyMap[e.keyCode];
+      if (this.state[action]) {
+        this.state[action] = false;
+        this.channel.push("event", { action: action, state: false });
+      }
     }
   }
 }

@@ -67,7 +67,7 @@ defmodule Socketfight.GameState do
 
   def player_tick(player) do
     if player.actions["forward"] do
-      update_in(player, [:state, :x], fn(x) -> x + 1 end)
+      update_in(player, [:state, :y], fn(y) -> y - 5 end)
     else
       player
     end

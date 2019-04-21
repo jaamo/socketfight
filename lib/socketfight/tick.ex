@@ -17,7 +17,7 @@ defmodule Socketfight.Tick do
     player = GameState.get_player(1)
     GameState.tick()
     if player != nil do
-      IO.puts "Player: forward #{player.actions["forward"]}, x: #{player.state.x}"
+      #IO.puts "Player: forward #{player.actions["forward"]}, x: #{player.state.x}"
     end
 
     SocketfightWeb.Endpoint.broadcast! "game:default", "player:update", %{
@@ -28,6 +28,6 @@ defmodule Socketfight.Tick do
   end
 
   defp schedule_work() do
-    Process.send_after(self(), :work, 1000)
+    Process.send_after(self(), :work, 100)
   end
 end
