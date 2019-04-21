@@ -19,6 +19,11 @@ defmodule Socketfight.Tick do
     if player != nil do
       IO.puts "Player: forward #{player.actions["forward"]}, x: #{player.state.x}"
     end
+
+    SocketfightWeb.Endpoint.broadcast! "game:default", "player:update", %{
+      players: GameState.players()
+    }
+
     {:noreply, state}
   end
 

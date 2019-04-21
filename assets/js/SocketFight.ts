@@ -67,8 +67,9 @@ export default class SocketFight extends Phaser.Scene {
    * Receive data from backend.
    */
   receiver(payload) {
+    console.log(payload);
     if (this.created) {
-      this.tank.setPosition(payload.player.state.x, 0);
+      //this.tank.setPosition(payload.player.state.x, 0);
     }
   }
 
