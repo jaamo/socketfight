@@ -28,6 +28,6 @@ defmodule Socketfight.Tick do
   end
 
   defp schedule_work() do
-    Process.send_after(self(), :work, 100)
+    Process.send_after(self(), :work, 30)
   end
 end

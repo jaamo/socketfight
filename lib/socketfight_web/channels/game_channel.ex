@@ -39,7 +39,8 @@ defmodule SocketfightWeb.GameChannel do
       },
       state: %{
         x: 540, 
-        y: 360
+        y: 360,
+        rotation: 0.0
       }
     }
 

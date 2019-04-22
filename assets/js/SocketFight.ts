@@ -21,7 +21,10 @@ export default class SocketFight extends Phaser.Scene {
 
     // Map keys to events.
     this.keyMap = {
-      "87": "forward"
+      "87": "forward",
+      "65": "left",
+      "68": "right",
+      "83": "brake"
     };
 
     // Init inputs.
@@ -79,11 +82,13 @@ export default class SocketFight extends Phaser.Scene {
       // Player exists, update
       if (typeof this.players[player.id] != "undefined") {
         this.players[player.id].setPosition(player.state.x, player.state.y);
+        this.players[player.id].setRotation(player.state.rotation);
       }
       // Player does not exist, create new.
       else {
         console.log("New tank: " + player.id);
         const tank = new Tank(this, player.state.x, player.state.y, "tank");
+        tank.setRotation(player.state.rotation);
         this.players[player.id] = tank;
         this.add.existing(tank);
       }

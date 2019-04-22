@@ -61,15 +61,28 @@ defmodule Socketfight.GameState do
   """
   def tick() do
     Enum.each players, fn{key, player} ->
-      player_tick(player) |> update_player
+      player_tick(player)
     end     
   end
 
   def player_tick(player) do
-    if player.actions["forward"] do
-      update_in(player, [:state, :y], fn(y) -> y - 5 end)
-    else
-      player
+    if player.actions["forward"] do 
+      xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
+      yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
+      player = update_in(player, [:state, :x], fn(x) -> x - xOffset end)
+      update_player(player)
+      player = update_in(player, [:state, :y], fn(y) -> y - yOffset end)
+      update_player(player)
+    end
+    if player.actions["brake"] do 
+    end
+    if player.actions["left"] do 
+      player = update_in(player, [:state, :rotation], fn(rotation) -> rotation - :math.pi() / 60 end)
+      update_player(player)
+    end
+    if player.actions["right"] do 
+      player = update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
+      update_player(player)
     end
   end
 
