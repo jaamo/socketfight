@@ -63,8 +63,27 @@ export default class SocketFight extends Phaser.Scene {
    * Game initializer function called when all assets are loaded.
    */
   create() {
+    // Add map.
     this.add.image(540, 360, "map");
+
+    // Start listening socket messages.
     this.channel.on("player:update", payload => this.receiver(payload));
+    this.channel.on("player:join", payload => this.joinGameHandler(payload));
+  }
+
+  joinGameHandler(payload) {
+    console.log(payload);
+    const obstacles = this.add.graphics();
+    if (payload.obstacles) {
+      for (const obstacle of payload.obstacles) {
+        obstacles.lineStyle(2, 0xff0000, 1.0);
+        obstacles.beginPath();
+        obstacles.moveTo(obstacle.a.x, obstacle.a.y);
+        obstacles.lineTo(obstacle.b.x, obstacle.b.y);
+        obstacles.closePath();
+        obstacles.strokePath();
+      }
+    }
   }
 
   update() {}

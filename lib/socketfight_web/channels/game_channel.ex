@@ -4,6 +4,11 @@ defmodule SocketfightWeb.GameChannel do
   use Phoenix.Channel
   alias Socketfight.GameState
 
+  @obstacles [
+    %{a: %{x: 100, y: 100}, b: %{x: 800, y: 100}},
+    %{a: %{x: 100, y: 600}, b: %{x: 800, y: 600}}
+  ] 
+
   def join("game:default", message, socket) do
 
     # Get all players.
@@ -47,8 +52,9 @@ defmodule SocketfightWeb.GameChannel do
     # Add player to the game.
     player = GameState.put_player(player)
 
-    # Notify that new player joined
-    # broadcast! socket, "player:join", %{player: player}
+    # Submit a map to players.
+    broadcast! socket, "player:join", %{obstacles: @obstacles}
+
     {:noreply, assign(socket, :player_id, player_id)}
        
   end
@@ -60,14 +66,5 @@ defmodule SocketfightWeb.GameChannel do
     #broadcast! socket, "player:update", %{player: player}
     {:noreply, socket}
   end
-
-  # old this kept as reference
-  """
-  def handle_in("new_msg", %{"body" => body}, socket) do
-    broadcast!(socket, "new_msg", %{body: body})
-    {:noreply, socket}
-  end
-  """
-
 
 end
