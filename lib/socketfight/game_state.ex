@@ -60,36 +60,36 @@ defmodule Socketfight.GameState do
   Calculate game tick.
   """
   def tick() do
-    Enum.each players, fn{key, player} ->
-      player |> player_handle_forward |> player_handle_left |> player_handle_right |> update_player
-    end     
+    Enum.each(players(), fn{_key, player} ->
+
+      # Filter out names of active actions.
+      taken_actions = player.actions 
+                      |> Enum.filter(fn{_action, state} -> state == true end)
+                      |> Enum.map(fn{action, _state} -> action end)
+
+      # Run action handlers.
+      updated_player = taken_actions 
+                      |> Enum.reduce(player, fn(action, player) -> handle_player(player, action) end)
+
+      # Update player.
+      updated_player |> update_player
+
+    end)   
   end
 
-  def player_handle_forward(player) do
-    if player.actions["forward"] do 
-      xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
-      yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
-      player = update_in(player, [:state, :x], fn(x) -> x - xOffset end)
-      update_in(player, [:state, :y], fn(y) -> y - yOffset end)
-    else
-      player
-    end
+  def handle_player(player, "forward") do
+    xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
+    yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
+    player = update_in(player, [:state, :x], fn(x) -> x - xOffset end)
+    update_in(player, [:state, :y], fn(y) -> y - yOffset end)
   end
 
-  def player_handle_left(player) do
-    if player.actions["left"] do 
-      update_in(player, [:state, :rotation], fn(rotation) -> rotation - :math.pi() / 60 end)
-    else
-      player
-    end
+  def handle_player(player, "left") do
+    update_in(player, [:state, :rotation], fn(rotation) -> rotation - :math.pi() / 60 end)
   end
   
-  def player_handle_right(player) do
-    if player.actions["right"] do 
-      update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
-    else
-      player
-    end
+  def handle_player(player, "right") do
+    update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
   end
 
 end
