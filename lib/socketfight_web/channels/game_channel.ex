@@ -32,10 +32,10 @@ defmodule SocketfightWeb.GameChannel do
     player = %{
       id: player_id, 
       actions: %{
-        "forward" => false,
-        "left" => false,
-        "right" => false,
-        "brake" => false
+        forward: false,
+        left: false,
+        right: false,
+        brake: false
       },
       state: %{
         x: 540, 

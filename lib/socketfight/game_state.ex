@@ -1,3 +1,6 @@
+# Collision detection:
+# https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection
+
 defmodule Socketfight.GameState do
   use Agent
 
