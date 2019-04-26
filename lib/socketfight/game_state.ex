@@ -94,5 +94,12 @@ defmodule Socketfight.GameState do
   def handle_player(player, "right") do
     update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
   end
+  
+  def handle_player(player, "brake") do
+    xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
+    yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
+    player = update_in(player, [:state, :x], fn(x) -> x + xOffset end)
+    update_in(player, [:state, :y], fn(y) -> y + yOffset end)
+  end
 
 end
