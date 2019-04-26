@@ -46,10 +46,10 @@ defmodule Socketfight.GameState do
     Agent.get(__MODULE__, &(&1))
   end
 
-  def update_player_action(player_id, action, state) do 
-    player_id 
-    |> get_player 
-    |> update_player_meta(action, state) 
+  def update_player_action(player_id, action, state) do
+    player_id
+    |> get_player
+    |> update_player_meta(action, state)
     |> update_player
   end
 
@@ -65,19 +65,25 @@ defmodule Socketfight.GameState do
   def tick() do
     Enum.each(players(), fn{_key, player} ->
 
+      # Setup shoot cooldown
+      player = cond do
+        player.state.shootCooldown > 0 -> update_in(player, [:state, :shootCooldown], fn(shootCooldown) -> shootCooldown - 1 end)
+        true -> player
+      end
+
       # Filter out names of active actions.
-      taken_actions = player.actions 
+      taken_actions = player.actions
                       |> Enum.filter(fn{_action, state} -> state == true end)
                       |> Enum.map(fn{action, _state} -> action end)
 
       # Run action handlers.
-      updated_player = taken_actions 
+      updated_player = taken_actions
                       |> Enum.reduce(player, fn(action, player) -> handle_player(player, action) end)
 
       # Update player.
       updated_player |> update_player
 
-    end)   
+    end)
   end
 
   def handle_player(player, "forward") do
@@ -90,16 +96,25 @@ defmodule Socketfight.GameState do
   def handle_player(player, "left") do
     update_in(player, [:state, :rotation], fn(rotation) -> rotation - :math.pi() / 60 end)
   end
-  
+
   def handle_player(player, "right") do
     update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
   end
-  
+
   def handle_player(player, "brake") do
     xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
     yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
     player = update_in(player, [:state, :x], fn(x) -> x + xOffset end)
     update_in(player, [:state, :y], fn(y) -> y + yOffset end)
+  end
+
+  def handle_player(player, "shoot") do
+    if player.state.shootCooldown == 0 && player.actions["shoot"] == true do
+      IO.puts "SHOOT THE CANNON!"
+      update_in(player, [:state, :shootCooldown], fn(_shootCooldown) -> 100 end)
+    else
+      player
+    end
   end
 
 end

@@ -7,7 +7,7 @@ defmodule SocketfightWeb.GameChannel do
   @obstacles [
     %{a: %{x: 100, y: 100}, b: %{x: 800, y: 100}},
     %{a: %{x: 100, y: 600}, b: %{x: 800, y: 600}}
-  ] 
+  ]
 
   def join("game:default", message, socket) do
 
@@ -35,17 +35,19 @@ defmodule SocketfightWeb.GameChannel do
 
     # Create new player
     player = %{
-      id: player_id, 
+      id: player_id,
       actions: %{
         forward: false,
         left: false,
         right: false,
-        brake: false
+        brake: false,
+        shoot: false
       },
       state: %{
-        x: 540, 
+        x: 540,
         y: 360,
-        rotation: 0.0
+        rotation: 0.0,
+        shootCooldown: 0
       }
     }
 
@@ -56,7 +58,7 @@ defmodule SocketfightWeb.GameChannel do
     broadcast! socket, "player:join", %{obstacles: @obstacles}
 
     {:noreply, assign(socket, :player_id, player_id)}
-       
+
   end
 
   def handle_in("event", %{"action" => action, "state" => state}, socket) do
