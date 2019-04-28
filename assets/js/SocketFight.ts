@@ -24,7 +24,8 @@ export default class SocketFight extends Phaser.Scene {
       "87": "forward",
       "65": "left",
       "68": "right",
-      "83": "brake"
+      "83": "brake",
+      "32": "shoot"
     };
 
     // Init inputs.
