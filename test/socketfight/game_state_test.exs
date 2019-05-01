@@ -14,7 +14,7 @@ defmodule AssertionTest do
 
     obstacle = %{a: %{x: 0, y: 200}, b: %{x: 200, y: 200}}
 
-    assert !CollisionDetector.collides(player, obstacle)
+    assert !CollisionDetector.collides?(player, obstacle)
   end
 
   test "collision" do
@@ -29,7 +29,7 @@ defmodule AssertionTest do
 
     obstacle = %{a: %{x: 0, y: 200}, b: %{x: 200, y: 200}}
 
-    assert CollisionDetector.collides(player, obstacle)
+    assert CollisionDetector.collides?(player, obstacle)
   end
 
   test "touch" do
@@ -44,7 +44,7 @@ defmodule AssertionTest do
 
     obstacle = %{a: %{x: 0, y: 120}, b: %{x: 200, y: 120}}
 
-    assert CollisionDetector.collides(player, obstacle)
+    assert CollisionDetector.collides?(player, obstacle)
   end
 
   test "inside" do
@@ -59,7 +59,7 @@ defmodule AssertionTest do
 
     obstacle = %{a: %{x: 0, y: 100}, b: %{x: 90, y: 100}}
 
-    assert CollisionDetector.collides(player, obstacle)
+    assert CollisionDetector.collides?(player, obstacle)
   end
 
   test "inside 2" do
@@ -74,6 +74,6 @@ defmodule AssertionTest do
 
     obstacle = %{a: %{x: 80, y: 100}, b: %{x: 120, y: 100}}
 
-    assert CollisionDetector.collides(player, obstacle)
+    assert CollisionDetector.collides?(player, obstacle)
   end
 end

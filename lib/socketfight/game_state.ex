@@ -3,9 +3,23 @@
 
 defmodule Socketfight.GameState do
   use Agent
+  alias Socketfight.CollisionDetector
 
-  #@arena_width 1080
-  #@arena_height 720
+  # @arena_width 1080
+  # @arena_height 720
+
+  def obstacles() do
+    [
+      # Edges
+      %{a: %{x: 0, y: 0}, b: %{x: 1080, y: 0}},
+      %{a: %{x: 1080, y: 0}, b: %{x: 1080, y: 720}},
+      %{a: %{x: 0, y: 720}, b: %{x: 1080, y: 720}},
+      %{a: %{x: 0, y: 0}, b: %{x: 0, y: 720}},
+      # Other obstacles
+      %{a: %{x: 200, y: 200}, b: %{x: 880, y: 200}},
+      %{a: %{x: 200, y: 520}, b: %{x: 880, y: 520}}
+    ]
+  end
 
   @doc """
   Used by the supervisor to start the Agent that will keep the game state persistent.
@@ -43,7 +57,7 @@ defmodule Socketfight.GameState do
   Get all the players in the map
   """
   def players do
-    Agent.get(__MODULE__, &(&1))
+    Agent.get(__MODULE__, & &1)
   end
 
   def update_player_action(player_id, action, state) do
@@ -56,65 +70,94 @@ defmodule Socketfight.GameState do
   def update_player_meta(player, key, value) do
     player
     |> put_in([:actions, key], value)
-    #|> Map.update!(key, fn(_) -> value end)
+
+    # |> Map.update!(key, fn(_) -> value end)
   end
 
   @doc """
   Calculate game tick.
   """
   def tick() do
-    Enum.each(players(), fn{_key, player} ->
-
+    Enum.each(players(), fn {_key, player} ->
       # Setup shoot cooldown
-      player = cond do
-        player.state.shootCooldown > 0 -> update_in(player, [:state, :shootCooldown], fn(shootCooldown) -> shootCooldown - 1 end)
-        true -> player
-      end
+      player =
+        cond do
+          player.state.shootCooldown > 0 ->
+            update_in(player, [:state, :shootCooldown], fn shootCooldown -> shootCooldown - 1 end)
+
+          true ->
+            player
+        end
+
+      # Reset collision state.
+      player = update_in(player, [:state, :collision], fn _ -> false end)
 
       # Filter out names of active actions.
-      taken_actions = player.actions
-                      |> Enum.filter(fn{_action, state} -> state == true end)
-                      |> Enum.map(fn{action, _state} -> action end)
+      taken_actions =
+        player.actions
+        |> Enum.filter(fn {_action, state} -> state == true end)
+        |> Enum.map(fn {action, _state} -> action end)
 
       # Run action handlers.
-      updated_player = taken_actions
-                      |> Enum.reduce(player, fn(action, player) -> handle_player(player, action) end)
+      updated_player =
+        taken_actions
+        |> Enum.reduce(player, fn action, player -> handle_player(player, action) end)
 
-      # Update player.
-      updated_player |> update_player
+      # IO.puts("newX #{updated_player.state.newX} newY #{updated_player.state.newY}")
+      # IO.puts(" ")
+      # IO.puts("New tick: ")
 
+      # Run collision detection. If no collisions, move player. Otherwise cancel move.
+
+      if !Enum.any?(obstacles(), fn obstacle -> CollisionDetector.collides?(player, obstacle) end) do
+        # IO.puts("No collision, move")
+        # IO.puts("x #{updated_player.state.x} newY #{updated_player.state.y}")
+
+        updated_player =
+          update_in(updated_player, [:state, :x], fn _ -> updated_player.state.newX end)
+
+        updated_player =
+          update_in(updated_player, [:state, :y], fn _ -> updated_player.state.newY end)
+
+        # Update player.
+        updated_player |> update_player
+      else
+        # IO.puts("Collision!")
+        # IO.puts("x #{updated_player.state.x} newY #{updated_player.state.y}")
+        # Update player.
+        updated_player |> update_player
+      end
     end)
   end
 
   def handle_player(player, "forward") do
     xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
     yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
-    player = update_in(player, [:state, :x], fn(x) -> x - xOffset end)
-    update_in(player, [:state, :y], fn(y) -> y - yOffset end)
-  end
-
-  def handle_player(player, "left") do
-    update_in(player, [:state, :rotation], fn(rotation) -> rotation - :math.pi() / 60 end)
-  end
-
-  def handle_player(player, "right") do
-    update_in(player, [:state, :rotation], fn(rotation) -> rotation + :math.pi() / 60 end)
+    player = update_in(player, [:state, :newX], fn _ -> player.state.x - xOffset end)
+    update_in(player, [:state, :newY], fn _ -> player.state.y - yOffset end)
   end
 
   def handle_player(player, "brake") do
     xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
     yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 5
-    player = update_in(player, [:state, :x], fn(x) -> x + xOffset end)
-    update_in(player, [:state, :y], fn(y) -> y + yOffset end)
+    player = update_in(player, [:state, :newX], fn x -> x + xOffset end)
+    update_in(player, [:state, :newY], fn y -> y + yOffset end)
+  end
+
+  def handle_player(player, "left") do
+    update_in(player, [:state, :rotation], fn rotation -> rotation - :math.pi() / 60 end)
+  end
+
+  def handle_player(player, "right") do
+    update_in(player, [:state, :rotation], fn rotation -> rotation + :math.pi() / 60 end)
   end
 
   def handle_player(player, "shoot") do
     if player.state.shootCooldown == 0 && player.actions["shoot"] == true do
-      IO.puts "SHOOT THE CANNON!"
-      update_in(player, [:state, :shootCooldown], fn(_shootCooldown) -> 100 end)
+      IO.puts("SHOOT THE CANNON!")
+      update_in(player, [:state, :shootCooldown], fn _shootCooldown -> 100 end)
     else
       player
     end
   end
-
 end
