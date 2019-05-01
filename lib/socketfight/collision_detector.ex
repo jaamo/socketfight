@@ -36,28 +36,38 @@ defmodule Socketfight.CollisionDetector do
 
     # Test if the line intersects the circle.
     cond do
+      # Line is inside the circle. Two intersections.
       lec < r ->
         # Compute distance from t to circle intersection point.
-        # _dt = :math.sqrt(:math.pow(r, 2) - :math.pow(lec, 2))
+        dt = :math.sqrt(:math.pow(r, 2) - :math.pow(lec, 2))
 
         # Compute first intersection point.
-        # _fx = (t - dt) * dx + ax
-        # _fy = (t - dt) * dy + ay
+        fx = (t - dt) * dx + ax
+        fy = (t - dt) * dy + ay
 
         # Compute second intersection point.
-        # _gx = (t + dt) * dx + ax
-        # _gy = (t + dt) * dy + ay
+        gx = (t + dt) * dx + ax
+        gy = (t + dt) * dy + ay
 
+        # Collision if one of the intersection points is on the line.
+        point_inside_box(fx, fy, ax, ay, bx, by) || point_inside_box(gx, gy, ax, ay, bx, by)
+
+      # Else test if the line is tangent to circle. Tangent point is E.
+      # Test if the point is on the line (A to B).
+      lec == r && point_inside_box(ex, ey, ax, ay, bx, by) ->
         true
 
-      # else test if the line is tangent to circle
-      lec == r ->
-        # tangent point to circle is E
-        true
-
+      # Line doesn't touch circle.
       true ->
-        # line doesn't touch circle
         false
     end
+  end
+
+  @doc """
+  Return true if given point p is inside a rectange defined by points a and b.
+  """
+  def point_inside_box(px, py, ax, ay, bx, by) do
+    px >= Enum.min([ax, bx]) && px <= Enum.max([ax, bx]) && py >= Enum.min([ay, by]) &&
+      py <= Enum.max([ay, by])
   end
 end
