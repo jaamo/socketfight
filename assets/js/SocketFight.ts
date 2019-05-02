@@ -25,7 +25,7 @@ export default class SocketFight extends Phaser.Scene {
       "65": "left",
       "68": "right",
       "83": "brake",
-      "32": "shoot"
+      "75": "shoot"
     };
 
     // Init inputs.
@@ -119,7 +119,7 @@ export default class SocketFight extends Phaser.Scene {
    * Handle key down.
    */
   onKeyDown(e) {
-    //console.log(e.keyCode);
+    console.log(e.keyCode);
     if (typeof this.keyMap[e.keyCode] != "undefined") {
       const action = this.keyMap[e.keyCode];
       if (!this.state[action]) {
