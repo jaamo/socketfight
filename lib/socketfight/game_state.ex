@@ -92,6 +92,9 @@ defmodule Socketfight.GameState do
       # Reset collision state.
       player = update_in(player, [:state, :collision], fn _ -> false end)
 
+      # Reset shot.
+      player = update_in(player, [:state, :shot], fn _ -> false end)
+
       # Filter out names of active actions.
       taken_actions =
         player.actions
@@ -154,7 +157,12 @@ defmodule Socketfight.GameState do
 
   def handle_player(player, "shoot") do
     if player.state.shootCooldown == 0 && player.actions["shoot"] == true do
-      IO.puts("SHOOT THE CANNON!")
+      xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 600
+      yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 600
+      IO.puts("Shoot to: #{xOffset} #{yOffset}")
+      player = update_in(player, [:state, :shootTargetX], fn _ -> player.state.x - xOffset end)
+      player = update_in(player, [:state, :shootTargetY], fn _ -> player.state.y - yOffset end)
+      player = update_in(player, [:state, :shot], fn _ -> true end)
       update_in(player, [:state, :shootCooldown], fn _shootCooldown -> 100 end)
     else
       player

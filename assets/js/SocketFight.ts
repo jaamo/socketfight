@@ -101,8 +101,27 @@ export default class SocketFight extends Phaser.Scene {
     Object.values(payload.players).forEach(player => {
       // Player exists, update
       if (typeof this.players[player.id] != "undefined") {
+        // Handle movement.
         this.players[player.id].setPosition(player.state.x, player.state.y);
         this.players[player.id].setRotation(player.state.rotation);
+
+        // Handle shooting.
+        if (player.state.shot) {
+          console.log("SHOT!", player);
+          const obstacles = this.add.graphics();
+          obstacles.lineStyle(2, 0x000000, 1.0);
+          obstacles.beginPath();
+          obstacles.moveTo(player.state.x, player.state.y);
+          obstacles.lineTo(
+            player.state.shootTargetX,
+            player.state.shootTargetY
+          );
+          obstacles.closePath();
+          obstacles.strokePath();
+          setTimeout(() => {
+            obstacles.destroy();
+          }, 100);
+        }
       }
       // Player does not exist, create new.
       else {

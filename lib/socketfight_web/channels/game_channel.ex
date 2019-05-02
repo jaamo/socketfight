@@ -43,7 +43,10 @@ defmodule SocketfightWeb.GameChannel do
         newY: 360,
         collision: false,
         rotation: 0.0,
-        shootCooldown: 0
+        shootCooldown: 0,
+        shootTargetX: 0,
+        shootTargetY: 0,
+        shot: false
       }
     }
 
