@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Socket } from "phoenix";
-import Tank from "./objects/Tank.ts";
+import Tank from "./components/Tank.ts";
 
 // https://github.com/facebook/react/issues/5906
 /**
@@ -94,10 +94,13 @@ export default class SocketFight extends Phaser.Scene {
    * Receive data from backend. Create new tanks, remove tanks and update tanks.
    */
   receiver(payload) {
-    //console.log(payload);
+    // console.log(payload);
     if (!payload.players) {
       return;
     }
+
+    // Update GUI by calling global setState-function.
+    window.gui.setState(payload);
 
     Object.values(payload.players).forEach(player => {
       // Player exists, update

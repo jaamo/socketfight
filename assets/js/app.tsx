@@ -20,31 +20,15 @@ import "phoenix_html";
 //import initSocket from './socket.ts';
 
 // Import main game class.
-import SocketFight from "./SocketFight.ts";
+import SocketFight from "./scene/SocketFight.ts";
+import GUI from "./gui/GUI.tsx";
 
-class Hello extends React.Component {
-  render() {
-    if (!this.state) return null;
-    return <div>Hello {this.state.name}</div>;
-  }
-}
+window.gui = ReactDOM.render(<GUI />, document.getElementById("container"));
+// component.setState({ players: [{ state: { health: 100 } }] });
 
-// var Hello = React.createClass({
-//   render: function() {
-//     if (!this.state) return null;
-//     return <div>Hello {this.state.name}</div>;
-//   }
-// });
-
-var component = ReactDOM.render(
-  <Hello />,
-  document.getElementById("container")
-);
-component.setState({ name: "World" });
-
-setTimeout(function() {
-  component.setState({ name: "StackOverFlow" });
-}, 1000);
+// setTimeout(function() {
+//   component.setState({ x: "StackOverFlow" });
+// }, 1000);
 
 // Configure Phaser game engine.
 const config = {
