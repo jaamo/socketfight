@@ -1,2 +1,3 @@
 <div id="game"></div>
+<div id="container"></div>
 Controls: move WASD, shoot K

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Socket } from "phoenix";
 import Tank from "./objects/Tank.ts";
 
+// https://github.com/facebook/react/issues/5906
 /**
  * Root class for SocketFight game component.
  */
