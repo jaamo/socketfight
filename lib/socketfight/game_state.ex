@@ -110,9 +110,23 @@ defmodule Socketfight.GameState do
       # IO.puts(" ")
       # IO.puts("New tick: ")
 
-      # Run collision detection. If no collisions, move player. Otherwise cancel move.
+      # If weapon is triggered check if it hits anyone.
+      # if updated_player.state.shot do
+      # Check if any player collides with bullet.
+      # end
 
-      if !Enum.any?(obstacles(), fn obstacle -> CollisionDetector.collides?(player, obstacle) end) do
+      # Run collision detection. If no collisions, move player. Otherwise cancel move.
+      if !Enum.any?(obstacles(), fn obstacle ->
+           CollisionDetector.collides?(
+             player.state.newX,
+             player.state.newY,
+             player.radius,
+             obstacle.a.x,
+             obstacle.a.y,
+             obstacle.b.x,
+             obstacle.b.y
+           )
+         end) do
         # IO.puts("No collision, move")
         # IO.puts("x #{updated_player.state.x} newY #{updated_player.state.y}")
 
@@ -155,15 +169,22 @@ defmodule Socketfight.GameState do
     update_in(player, [:state, :rotation], fn rotation -> rotation + :math.pi() / 60 end)
   end
 
+  @doc """
+  Shoot weapon.
+  """
   def handle_player(player, "shoot") do
+    # If cooldown is over and shoot-button is enabled.
     if player.state.shootCooldown == 0 && player.actions["shoot"] == true do
-      xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 600
-      yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 600
+      # Calculate end point.
+      xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 400
+      yOffset = :math.sin(player.state.rotation + :math.pi() / 2) * 400
       IO.puts("Shoot to: #{xOffset} #{yOffset}")
+
+      # Update states.
       player = update_in(player, [:state, :shootTargetX], fn _ -> player.state.x - xOffset end)
       player = update_in(player, [:state, :shootTargetY], fn _ -> player.state.y - yOffset end)
       player = update_in(player, [:state, :shot], fn _ -> true end)
-      update_in(player, [:state, :shootCooldown], fn _shootCooldown -> 100 end)
+      update_in(player, [:state, :shootCooldown], fn _ -> 100 end)
     else
       player
     end

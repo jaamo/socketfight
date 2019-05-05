@@ -46,7 +46,8 @@ defmodule SocketfightWeb.GameChannel do
         shootCooldown: 0,
         shootTargetX: 0,
         shootTargetY: 0,
-        shot: false
+        shot: false,
+        health: 100
       }
     }
 

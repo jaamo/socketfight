@@ -1,18 +1,18 @@
 defmodule Socketfight.CollisionDetector do
   # https://stackoverflow.com/a/1088058
   # https://i.stack.imgur.com/P556i.png
-  def collides?(player, obstacle) do
+  def collides?(cx, cy, r, ax, ay, bx, by) do
     # Prepare variables.
     # Line start end end.
-    ax = obstacle.a.x
-    ay = obstacle.a.y
-    bx = obstacle.b.x
-    by = obstacle.b.y
+    # ax = obstacle.a.x
+    # ay = obstacle.a.y
+    # bx = obstacle.b.x
+    # by = obstacle.b.y
 
     # Circle.
-    cx = player.state.newX
-    cy = player.state.newY
-    r = player.radius
+    # cx = player.state.newX
+    # cy = player.state.newY
+    # r = player.radius
 
     # Compute the euclidean distance between A and B.
     lab = :math.sqrt(round(:math.pow(bx - ax, 2)) + round(:math.pow(by - ay, 2)))

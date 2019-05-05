@@ -22,55 +22,88 @@ defmodule Socketfight.GameStateTest do
     assert CollisionDetector.point_inside_box(1, 1, 0, 2, 2, 0)
   end
 
-  # setup_all gets run once before any tests run, allowing us to
-  # prepare a state for every test in one go. It is expected to
-  # return an {:ok, state} tuple.
-  setup_all do
-    player = %{
-      id: 0,
-      radius: 40,
-      state: %{
-        x: 100,
-        y: 100,
-        newX: 100,
-        newY: 100
-      }
-    }
-
-    state = %{player: player}
-    {:ok, state}
-  end
-
-  test "no collision", state do
-    obstacle = %{a: %{x: 0, y: 200}, b: %{x: 200, y: 200}}
-    assert !CollisionDetector.collides?(state.player, obstacle)
+  test "no collision" do
+    assert !CollisionDetector.collides?(
+             100,
+             100,
+             40,
+             0,
+             200,
+             200,
+             200
+           )
   end
 
   test "collision" do
-    player = %{
-      id: 0,
-      radius: 40,
-      state: %{
-        x: 100,
-        y: 200,
-        newX: 100,
-        newY: 200
-      }
-    }
-
-    obstacle = %{a: %{x: 0, y: 200}, b: %{x: 200, y: 200}}
-
-    assert CollisionDetector.collides?(player, obstacle)
+    assert CollisionDetector.collides?(
+             100,
+             200,
+             40,
+             0,
+             200,
+             200,
+             200
+           )
   end
 
-  test "touch", state do
-    obstacle = %{a: %{x: 0, y: 120}, b: %{x: 200, y: 120}}
-    assert CollisionDetector.collides?(state.player, obstacle)
+  test "touch" do
+    assert CollisionDetector.collides?(
+             100,
+             100,
+             40,
+             0,
+             120,
+             200,
+             120
+           )
   end
 
-  test "inside", state do
-    obstacle = %{a: %{x: 0, y: 100}, b: %{x: 90, y: 100}}
-    assert CollisionDetector.collides?(state.player, obstacle)
+  test "inside" do
+    assert CollisionDetector.collides?(
+             100,
+             100,
+             40,
+             0,
+             100,
+             90,
+             100
+           )
+  end
+
+  test "outside but in the same line" do
+    assert !CollisionDetector.collides?(
+             100,
+             100,
+             40,
+             200,
+             100,
+             600,
+             100
+           )
+  end
+
+  test "outside but in the same line 2" do
+    assert !CollisionDetector.collides?(
+             800,
+             100,
+             40,
+             200,
+             100,
+             600,
+             100
+           )
+  end
+
+  test "outside touch" do
+    assert !CollisionDetector.collides?(
+             100,
+             60,
+             40,
+             200,
+             100,
+             600,
+             100
+           )
   end
 
   # TODO: If the line is very small and completely inside the circle that's
@@ -91,43 +124,4 @@ defmodule Socketfight.GameStateTest do
 
   #   assert CollisionDetector.collides?(player, obstacle)
   # end
-
-  test "outside but in the same line", state do
-    obstacle = %{a: %{x: 200, y: 100}, b: %{x: 600, y: 100}}
-    assert !CollisionDetector.collides?(state.player, obstacle)
-  end
-
-  test "outside but in the same line 2" do
-    player = %{
-      id: 0,
-      radius: 40,
-      state: %{
-        x: 800,
-        y: 100,
-        newX: 800,
-        newY: 100
-      }
-    }
-
-    obstacle = %{a: %{x: 200, y: 100}, b: %{x: 600, y: 100}}
-
-    assert !CollisionDetector.collides?(player, obstacle)
-  end
-
-  test "outside touch" do
-    player = %{
-      id: 0,
-      radius: 40,
-      state: %{
-        x: 100,
-        y: 60,
-        newX: 100,
-        newY: 60
-      }
-    }
-
-    obstacle = %{a: %{x: 200, y: 100}, b: %{x: 600, y: 100}}
-
-    assert !CollisionDetector.collides?(player, obstacle)
-  end
 end
