@@ -125,6 +125,7 @@ defmodule Socketfight.GameState do
             updated_player.state.shootTargetY
           )
         end)
+        # Save hit players.
         |> Enum.map(fn {_, target_player} ->
           update_in(target_player, [:state, :health], fn health -> health - 20 end)
           |> update_player
