@@ -54,6 +54,12 @@ defmodule Socketfight.GameState do
   end
 
   @doc """
+  """
+  def delete_player(player) do
+    IO.puts("Delete player #{player.id}")
+  end
+
+  @doc """
   Get all the players in the map
   """
   def players do
@@ -108,10 +114,6 @@ defmodule Socketfight.GameState do
         taken_actions
         |> Enum.reduce(player, fn action, player -> handle_player(player, action) end)
 
-      # IO.puts("newX #{updated_player.state.newX} newY #{updated_player.state.newY}")
-      # IO.puts(" ")
-      # IO.puts("New tick: ")
-
       # If shot check hits.
       if updated_player.state.shot do
         # Loop through each opponent for collisions.
@@ -134,6 +136,11 @@ defmodule Socketfight.GameState do
         end)
       end
 
+      # Clean players with less than zero health.
+      players()
+      |> Enum.filter(fn {_, player} -> player.state.health <= 0 end)
+      |> Enum.map(fn {_, player} -> delete_player(player) end)
+
       # Run collision detection. If no collisions, move player. Otherwise cancel move.
       if !Enum.any?(obstacles(), fn obstacle ->
            CollisionDetector.collides?(
@@ -146,9 +153,7 @@ defmodule Socketfight.GameState do
              obstacle.b.y
            )
          end) do
-        # IO.puts("No collision, move")
-        # IO.puts("x #{updated_player.state.x} newY #{updated_player.state.y}")
-
+        # Move player to the new position.
         updated_player =
           update_in(updated_player, [:state, :x], fn _ -> updated_player.state.newX end)
 
@@ -158,8 +163,6 @@ defmodule Socketfight.GameState do
         # Update player.
         updated_player |> update_player
       else
-        # IO.puts("Collision!")
-        # IO.puts("x #{updated_player.state.x} newY #{updated_player.state.y}")
         # Update player.
         updated_player |> update_player
       end
