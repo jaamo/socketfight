@@ -110,10 +110,26 @@ defmodule Socketfight.GameState do
       # IO.puts(" ")
       # IO.puts("New tick: ")
 
-      # If weapon is triggered check if it hits anyone.
-      # if updated_player.state.shot do
-      # Check if any player collides with bullet.
-      # end
+      # If shot check hits.
+      if updated_player.state.shot do
+        # Loop through each opponent for collisions.
+        players()
+        |> Enum.filter(fn {_, target_player} ->
+          CollisionDetector.collides?(
+            target_player.state.x,
+            target_player.state.y,
+            target_player.radius,
+            updated_player.state.x,
+            updated_player.state.y,
+            updated_player.state.shootTargetX,
+            updated_player.state.shootTargetY
+          )
+        end)
+        |> Enum.map(fn {_, target_player} ->
+          update_in(target_player, [:state, :health], fn health -> health - 20 end)
+          |> update_player
+        end)
+      end
 
       # Run collision detection. If no collisions, move player. Otherwise cancel move.
       if !Enum.any?(obstacles(), fn obstacle ->
@@ -146,6 +162,9 @@ defmodule Socketfight.GameState do
       end
     end)
   end
+
+  # def handle_bullet_damage(player, players) do
+  # end
 
   def handle_player(player, "forward") do
     xOffset = :math.cos(player.state.rotation + :math.pi() / 2) * 5
