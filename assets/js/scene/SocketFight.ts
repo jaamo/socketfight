@@ -156,12 +156,18 @@ export default class SocketFight extends Phaser.Scene {
    * Handle key up
    */
   onKeyUp(e) {
+    // Handle default controls.
     if (typeof this.keyMap[e.keyCode] != "undefined") {
       const action = this.keyMap[e.keyCode];
       if (this.state[action]) {
         this.state[action] = false;
         this.channel.push("event", { action: action, state: false });
       }
+    }
+
+    // Special handling for joining the game.
+    if (e.keyCode == 78) {
+      this.channel.push("join", {});
     }
   }
 }

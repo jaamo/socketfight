@@ -61,17 +61,19 @@ defmodule Socketfight.GameState do
   end
 
   def update_player_action(player_id, action, state) do
-    player_id
-    |> get_player
-    |> update_player_meta(action, state)
-    |> update_player
+    player = get_player(player_id)
+
+    cond do
+      player ->
+        player
+        |> update_player_meta(action, state)
+        |> update_player
+    end
   end
 
   def update_player_meta(player, key, value) do
     player
     |> put_in([:actions, key], value)
-
-    # |> Map.update!(key, fn(_) -> value end)
   end
 
   @doc """

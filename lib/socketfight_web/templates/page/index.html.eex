@@ -1,3 +1,5 @@
 <div id="game"></div>
 <div id="container"></div>
-Controls: move WASD, shoot K
+N = join game<br>
+WASD = move<br>
+K = shoot
