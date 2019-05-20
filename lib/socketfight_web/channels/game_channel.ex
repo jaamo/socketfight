@@ -50,7 +50,9 @@ defmodule SocketfightWeb.GameChannel do
         shootTargetX: 0,
         shootTargetY: 0,
         shot: false,
-        health: 100
+        health: 100,
+        kills: 0,
+        deaths: 0
       }
     }
 

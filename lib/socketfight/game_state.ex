@@ -100,9 +100,6 @@ defmodule Socketfight.GameState do
       # Reset collision state.
       player = update_in(player, [:state, :collision], fn _ -> false end)
 
-      # Reset shot.
-      player = update_in(player, [:state, :shot], fn _ -> false end)
-
       # Filter out names of active actions.
       taken_actions =
         player.actions
@@ -114,32 +111,16 @@ defmodule Socketfight.GameState do
         taken_actions
         |> Enum.reduce(player, fn action, player -> handle_player(player, action) end)
 
-      # If shot check hits.
-      if updated_player.state.shot do
-        # Loop through each opponent for collisions.
-        players()
-        |> Enum.filter(fn {_, target_player} ->
-          CollisionDetector.collides?(
-            target_player.state.x,
-            target_player.state.y,
-            target_player.radius,
-            updated_player.state.x,
-            updated_player.state.y,
-            updated_player.state.shootTargetX,
-            updated_player.state.shootTargetY
-          )
-        end)
-        # Save hit players.
-        |> Enum.map(fn {_, target_player} ->
-          update_in(target_player, [:state, :health], fn health -> health - 20 end)
-          |> update_player
-        end)
-      end
+      # Handle damage dealt by shooting.
+      deal_damage(updated_player, players(), updated_player.state.shot)
 
       # Clean players with less than zero health.
       players()
       |> Enum.filter(fn {_, player} -> player.state.health <= 0 end)
-      |> Enum.map(fn {_, player} -> delete_player(player) end)
+      |> Enum.map(fn {_, player} -> handle_death(player) end)
+
+      # Reset shot.
+      updated_player = update_in(updated_player, [:state, :shot], fn _ -> false end)
 
       # Run collision detection. If no collisions, move player. Otherwise cancel move.
       if !Enum.any?(obstacles(), fn obstacle ->
@@ -167,6 +148,54 @@ defmodule Socketfight.GameState do
         updated_player |> update_player
       end
     end)
+  end
+
+  @doc """
+  Check if player has shot and deal damage to players hit by bullet. Returns
+  a player with updated kills status.
+  """
+  def deal_damage(player, players, true) do
+    IO.puts("SHOT")
+    # Loop through each opponent for collisions.
+    players_hit =
+      players
+      |> Enum.filter(fn {_, target_player} ->
+        IO.puts("Check hit #{target_player.id}")
+
+        CollisionDetector.collides?(
+          target_player.state.x,
+          target_player.state.y,
+          target_player.radius,
+          player.state.x,
+          player.state.y,
+          player.state.shootTargetX,
+          player.state.shootTargetY
+        )
+      end)
+
+    # Loop through hit players
+    players_hit
+    |> Enum.map(fn {_, target_player} ->
+      # Reduce target player health.
+      IO.puts("Player #{target_player.id} HIT!")
+
+      update_in(target_player, [:state, :health], fn health -> health - 20 end)
+      |> update_player
+    end)
+  end
+
+  @doc """
+  In case weapon is not shot, no damage is done.
+  """
+  def deal_damage(player, _, _) do
+    player
+  end
+
+  @doc """
+  If player dies, increase death counter and reset location.
+  """
+  def handle_death(player) do
+    player |> update_in([:state, :deaths], fn deaths -> deaths + 1 end) |> update_player
   end
 
   # def handle_bullet_damage(player, players) do
