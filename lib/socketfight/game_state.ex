@@ -195,7 +195,10 @@ defmodule Socketfight.GameState do
   If player dies, increase death counter and reset location.
   """
   def handle_death(player) do
-    player |> update_in([:state, :deaths], fn deaths -> deaths + 1 end) |> update_player
+    player
+    |> update_in([:state, :health], fn _ -> 100 end)
+    |> update_in([:state, :deaths], fn deaths -> deaths + 1 end)
+    |> update_player
   end
 
   # def handle_bullet_damage(player, players) do
