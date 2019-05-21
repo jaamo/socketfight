@@ -98,18 +98,21 @@ defmodule Socketfight.GameState do
         end
 
       # Reset collision state.
-      player = update_in(player, [:state, :collision], fn _ -> false end)
+      updated_player = update_in(player, [:state, :collision], fn _ -> false end)
+
+      # Reset shot state.
+      updated_player = update_in(updated_player, [:state, :shot], fn _ -> false end)
 
       # Filter out names of active actions.
       taken_actions =
-        player.actions
+        updated_player.actions
         |> Enum.filter(fn {_action, state} -> state == true end)
         |> Enum.map(fn {action, _state} -> action end)
 
       # Run action handlers.
       updated_player =
         taken_actions
-        |> Enum.reduce(player, fn action, player -> handle_player(player, action) end)
+        |> Enum.reduce(updated_player, fn action, player -> handle_player(player, action) end)
 
       # Handle damage dealt by shooting.
       deal_damage(updated_player, players(), updated_player.state.shot)
@@ -118,9 +121,6 @@ defmodule Socketfight.GameState do
       players()
       |> Enum.filter(fn {_, player} -> player.state.health <= 0 end)
       |> Enum.map(fn {_, player} -> handle_death(player) end)
-
-      # Reset shot.
-      updated_player = update_in(updated_player, [:state, :shot], fn _ -> false end)
 
       # Run collision detection. If no collisions, move player. Otherwise cancel move.
       if !Enum.any?(obstacles(), fn obstacle ->
