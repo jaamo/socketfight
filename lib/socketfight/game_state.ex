@@ -155,13 +155,10 @@ defmodule Socketfight.GameState do
   a player with updated kills status.
   """
   def deal_damage(player, players, true) do
-    IO.puts("SHOT")
-    # Loop through each opponent for collisions.
+    # Loop through each opponent. Check collisions.
     players_hit =
       players
       |> Enum.filter(fn {_, target_player} ->
-        IO.puts("Check hit #{target_player.id}")
-
         CollisionDetector.collides?(
           target_player.state.x,
           target_player.state.y,
@@ -173,12 +170,12 @@ defmodule Socketfight.GameState do
         )
       end)
 
+    # Order list based on distance.
+
     # Loop through hit players
     players_hit
     |> Enum.map(fn {_, target_player} ->
       # Reduce target player health.
-      IO.puts("Player #{target_player.id} HIT!")
-
       update_in(target_player, [:state, :health], fn health -> health - 20 end)
       |> update_player
     end)

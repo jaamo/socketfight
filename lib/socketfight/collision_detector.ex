@@ -1,6 +1,9 @@
 defmodule Socketfight.CollisionDetector do
-  # https://stackoverflow.com/a/1088058
-  # https://i.stack.imgur.com/P556i.png
+  @doc """
+  Return true if collides.
+  https://stackoverflow.com/a/1088058
+  https://i.stack.imgur.com/P556i.png
+  """
   def collides?(cx, cy, r, ax, ay, bx, by) do
     # Prepare variables.
     # Line start end end.
