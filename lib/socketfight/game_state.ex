@@ -238,7 +238,7 @@ defmodule Socketfight.GameState do
       player = update_in(player, [:state, :shootTargetX], fn _ -> player.state.x - xOffset end)
       player = update_in(player, [:state, :shootTargetY], fn _ -> player.state.y - yOffset end)
       player = update_in(player, [:state, :shot], fn _ -> true end)
-      update_in(player, [:state, :shootCooldown], fn _ -> 100 end)
+      update_in(player, [:state, :shootCooldown], fn _ -> 30 end)
     else
       player
     end
