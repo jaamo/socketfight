@@ -10,10 +10,6 @@ defmodule Socketfight.GameStateTest do
     assert CollisionDetector.point_inside_box(2, 1, 0, 0, 2, 2)
   end
 
-  test "point outside box 1" do
-    assert !CollisionDetector.point_inside_box(5, 1, 0, 0, 2, 2)
-  end
-
   test "point outside box 2" do
     assert !CollisionDetector.point_inside_box(1, 5, 0, 0, 2, 2)
   end
@@ -23,86 +19,107 @@ defmodule Socketfight.GameStateTest do
   end
 
   test "no collision" do
-    assert !CollisionDetector.collides?(
-             100,
-             100,
-             40,
-             0,
-             200,
-             200,
-             200
+    assert match?(
+             {false},
+             CollisionDetector.collides?(
+               100,
+               100,
+               40,
+               0,
+               200,
+               200,
+               200
+             )
            )
   end
 
   test "collision" do
-    assert CollisionDetector.collides?(
-             100,
-             200,
-             40,
-             0,
-             200,
-             200,
-             200
+    assert match?(
+             {true, _},
+             CollisionDetector.collides?(
+               100,
+               200,
+               40,
+               0,
+               200,
+               200,
+               200
+             )
            )
   end
 
   test "touch" do
-    assert CollisionDetector.collides?(
-             100,
-             100,
-             40,
-             0,
-             120,
-             200,
-             120
+    assert match?(
+             {true, _},
+             CollisionDetector.collides?(
+               100,
+               100,
+               40,
+               0,
+               120,
+               200,
+               120
+             )
            )
   end
 
   test "inside" do
-    assert CollisionDetector.collides?(
-             100,
-             100,
-             40,
-             0,
-             100,
-             90,
-             100
+    assert match?(
+             {true, _},
+             CollisionDetector.collides?(
+               100,
+               100,
+               40,
+               0,
+               100,
+               90,
+               100
+             )
            )
   end
 
   test "outside but in the same line" do
-    assert !CollisionDetector.collides?(
-             100,
-             100,
-             40,
-             200,
-             100,
-             600,
-             100
+    assert match?(
+             {false},
+             CollisionDetector.collides?(
+               100,
+               100,
+               40,
+               200,
+               100,
+               600,
+               100
+             )
            )
   end
 
   test "outside but in the same line 2" do
-    assert !CollisionDetector.collides?(
-             800,
-             100,
-             40,
-             200,
-             100,
-             600,
-             100
+    assert match?(
+             {false},
+             CollisionDetector.collides?(
+               800,
+               100,
+               40,
+               200,
+               100,
+               600,
+               100
+             )
            )
   end
 
   test "outside touch" do
-    assert !CollisionDetector.collides?(
-             100,
-             60,
-             40,
-             200,
-             100,
-             600,
-             100
+    assert match?(
+             {false},
+             CollisionDetector.collides?(
+               100,
+               60,
+               40,
+               200,
+               100,
+               600,
+               100
+             )
            )
   end
 

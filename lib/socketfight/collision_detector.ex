@@ -1,22 +1,18 @@
 defmodule Socketfight.CollisionDetector do
   @doc """
-  Return true if collides.
+  Check if given circle collides with given line. 
+
+  Circle is defined with radius (r) and position (cx, cy).
+
+  Line is defined with two points ax, ay and bx, by.
+
+  Returns tuple {:false, %{x: 0, y: 0}}
+
+  References:
   https://stackoverflow.com/a/1088058
   https://i.stack.imgur.com/P556i.png
   """
   def collides?(cx, cy, r, ax, ay, bx, by) do
-    # Prepare variables.
-    # Line start end end.
-    # ax = obstacle.a.x
-    # ay = obstacle.a.y
-    # bx = obstacle.b.x
-    # by = obstacle.b.y
-
-    # Circle.
-    # cx = player.state.newX
-    # cy = player.state.newY
-    # r = player.radius
-
     # Compute the euclidean distance between A and B.
     lab = :math.sqrt(round(:math.pow(bx - ax, 2)) + round(:math.pow(by - ay, 2)))
 
@@ -35,7 +31,7 @@ defmodule Socketfight.CollisionDetector do
     ey = t * dy + ay
 
     # Compute the euclidean distance between E and C.
-    lec = :math.sqrt(:math.pow(ex - cx, 2) + :math.pow(ey - cy, 2))
+    lec = distance_between_points(ex, ey, cx, cy)
 
     # Test if the line intersects the circle.
     cond do
@@ -53,17 +49,30 @@ defmodule Socketfight.CollisionDetector do
         gy = (t + dt) * dy + ay
 
         # Collision if one of the intersection points is on the line.
-        point_inside_box(fx, fy, ax, ay, bx, by) || point_inside_box(gx, gy, ax, ay, bx, by)
+        cond do
+          point_inside_box(fx, fy, ax, ay, bx, by) ->
+            {true, %{x: fx, y: fy, distance: distance_between_points(cx, cy, fx, fy)}}
+
+          point_inside_box(gx, gy, ax, ay, bx, by) ->
+            {true, %{x: gx, y: gy, distance: distance_between_points(cx, cy, gx, gy)}}
+
+          true ->
+            {false}
+        end
 
       # Else test if the line is tangent to circle. Tangent point is E.
       # Test if the point is on the line (A to B).
       lec == r && point_inside_box(ex, ey, ax, ay, bx, by) ->
-        true
+        {true, %{x: ex, y: ey, distance: distance_between_points(cx, cy, ex, ey)}}
 
       # Line doesn't touch circle.
       true ->
-        false
+        {false}
     end
+  end
+
+  def distance_between_points(ax, ay, bx, by) do
+    :math.sqrt(:math.pow(ax - bx, 2) + :math.pow(ay - by, 2))
   end
 
   @doc """
