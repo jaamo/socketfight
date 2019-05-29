@@ -124,14 +124,17 @@ defmodule Socketfight.GameState do
 
       # Run collision detection. If no collisions, move player. Otherwise cancel move.
       if !Enum.any?(obstacles(), fn obstacle ->
-           CollisionDetector.collides?(
-             player.state.newX,
-             player.state.newY,
-             player.radius,
-             obstacle.a.x,
-             obstacle.a.y,
-             obstacle.b.x,
-             obstacle.b.y
+           elem(
+             CollisionDetector.collides?(
+               player.state.newX,
+               player.state.newY,
+               player.radius,
+               obstacle.a.x,
+               obstacle.a.y,
+               obstacle.b.x,
+               obstacle.b.y
+             ),
+             0
            )
          end) do
         # Move player to the new position.
@@ -159,14 +162,17 @@ defmodule Socketfight.GameState do
     players_hit =
       players
       |> Enum.filter(fn {_, target_player} ->
-        CollisionDetector.collides?(
-          target_player.state.x,
-          target_player.state.y,
-          target_player.radius,
-          player.state.x,
-          player.state.y,
-          player.state.shootTargetX,
-          player.state.shootTargetY
+        elem(
+          CollisionDetector.collides?(
+            target_player.state.x,
+            target_player.state.y,
+            target_player.radius,
+            player.state.x,
+            player.state.y,
+            player.state.shootTargetX,
+            player.state.shootTargetY
+          ),
+          0
         )
       end)
 
