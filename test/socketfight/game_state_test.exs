@@ -35,14 +35,14 @@ defmodule Socketfight.GameStateTest do
 
   test "collision" do
     assert match?(
-             {true, _},
+             {true, %{x: 50.0, y: 200.0, dist: _, collides: _}},
              CollisionDetector.collides?(
                100,
                200,
-               40,
+               50,
                0,
                200,
-               200,
+               400,
                200
              )
            )
@@ -50,29 +50,29 @@ defmodule Socketfight.GameStateTest do
 
   test "touch" do
     assert match?(
-             {true, _},
+             {true, %{x: 100.0, y: 150.0, dist: _, collides: _}},
              CollisionDetector.collides?(
                100,
                100,
-               40,
+               50,
                0,
-               120,
+               150,
                200,
-               120
+               150
              )
            )
   end
 
-  test "inside" do
+  test "single intersection" do
     assert match?(
-             {true, _},
+             {true, %{x: 50.0, y: 100.0, dist: _, collides: _}},
              CollisionDetector.collides?(
                100,
                100,
-               40,
+               50,
                0,
                100,
-               90,
+               100,
                100
              )
            )
@@ -84,7 +84,7 @@ defmodule Socketfight.GameStateTest do
              CollisionDetector.collides?(
                100,
                100,
-               40,
+               50,
                200,
                100,
                600,
