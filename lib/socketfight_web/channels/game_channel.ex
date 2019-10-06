@@ -3,10 +3,11 @@
 defmodule SocketfightWeb.GameChannel do
   use Phoenix.Channel
   alias Socketfight.GameState
+  alias Socketfight.Player
 
   def join("game:default", message, socket) do
     # Notify self.
-    send(self, {:after_join, message})
+    send(self(), {:after_join, message})
     {:ok, socket}
   end
 
@@ -26,45 +27,17 @@ defmodule SocketfightWeb.GameChannel do
   end
 
   def handle_in("join", %{}, socket) do
-    player_id = socket.assigns.player_id
-
-    # Create new player
-    player = %{
-      id: player_id,
-      radius: 20,
-      actions: %{
-        forward: false,
-        left: false,
-        right: false,
-        brake: false,
-        shoot: false
-      },
-      state: %{
-        x: 540,
-        y: 360,
-        newX: 540,
-        newY: 360,
-        collision: false,
-        rotation: 0.0,
-        shootCooldown: 0,
-        shootTargetX: 0,
-        shootTargetY: 0,
-        shot: false,
-        health: 100,
-        kills: 0,
-        deaths: 0
-      }
-    }
-
-    # Add player to the game.
-    player = GameState.put_player(player)
+    # Create new player and add it to the game
+    socket.assigns.player_id
+    |> Player.new()
+    |> GameState.put_player()
 
     {:noreply, socket}
   end
 
   def handle_in("event", %{"action" => action, "state" => state}, socket) do
     player_id = socket.assigns.player_id
-    player = GameState.update_player_action(player_id, action, state)
+    GameState.update_player_action(player_id, action, state)
     {:noreply, socket}
   end
 end
